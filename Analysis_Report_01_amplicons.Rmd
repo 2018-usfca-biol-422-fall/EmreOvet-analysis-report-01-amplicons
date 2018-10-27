@@ -53,13 +53,81 @@ library("seqinr")
 # To install this you have to install from GitHub
 # See more info here: https://github.com/leffj/mctoolsr
 # run this -- install.packages("devtools")
-# and then this -- devtools::install_github("leffj/mctoolsr")
+# and then this --
 library("mctoolsr")
 
 # And this to visualize our results
 # it also needs to be installed from bioconductor
 library("phyloseq")
 ```
+
+```{r melt-phyloseq}
+melted_phyloseq <- psmelt(phyloseq_obj)
+```
+```{r exploring-datasets}
+names(melted_phyloseq)
+```
+```{r exploring-datasets}
+summary(as.factor(melted_phyloseq$age_unit))
+```
+```{r exploring-datasets}
+table(melted_phyloseq$Phylum, melted_phyloseq$Abundance)
+```
+```{r exploring-datasets}
+summary(as.factor(melted_phyloseq$longitude))
+```
+
+```{r The-most-abundant-phylum-in-each-key}
+melted_phyloseq %>%
+  ggplot(aes(x = sample_source,
+             y = Abundance,
+             fill = Phylum)) +
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+ggtitle ("The Most Abundant Phylum in Each Key")
+```
+
+```{r Abundance-of-phyla-on-left-shift-key-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Right_shift")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Phylum)) +
+  geom_col(position = position_dodge()) + 
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of Phyla on Left Shift Key and Right Shift Key")
+
+```
+
+```{r Abundance-of-family-in-actinobacteria-family-found-in-left-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Right_shift")) %>%
+  filter(Phylum %in% c("Actinobacteria")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Family)) +
+  geom_col(position = position_dodge()) + 
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of family in Actinobacteria phylum found in left and right shift keys")
+
+```
+```{r Abundance-of-genus-in-propopionibacteraiceae-family-found-in-left-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Right_shift")) %>%
+  filter(Family %in% c("Propionibacteriaceae")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Genus)) +
+  geom_col(position = position_dodge()) + 
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of genus in Propionibacteriaceae family found in left and right shift keys")
+
+
+```
+```{r The-host-subject-identities-for-the-Propionibacteriaceae-family-found-from-left-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Right_shift")) %>%
+  filter(Family %in% c("Propionibacteriaceae")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Genus)) +
+  geom_col(position = position_dodge()) + 
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+
+```
+
 
 ```{r extract-sample-and-file-names}
 # NOTE: Much of the following follows the DADA2 tutorials available here:
@@ -81,7 +149,7 @@ filenames_forward_reads <- file.path(path, filenames_forward_reads)
 
 ```{r check-quality-plots}
 # Plots the quality profiles of all twenty samples
-plotQualityProfile(filenames_forward_reads[1:20])
+plotQualityProfile(filenames_forward_reads[1:115])
 ```
 
 We can see from the quality profiles that most reads tend to get pretty bad in quality after around 200 bases. 
@@ -106,7 +174,7 @@ filtered_output <- filterAndTrim(fwd = filenames_forward_reads,
                                  truncQ = 2, # cut off if quality gets this low
                                  rm.phix = TRUE,
                                  compress = TRUE,
-                                 multithread = FALSE)
+                                 multithread = TRUE)
 ```
 
 ```{r filtered-read-counts-table}
@@ -207,7 +275,7 @@ kable(track)
 # made up of known sequences
 taxa <- assignTaxonomy(sequence_table_nochim,
                        "data/training/rdp_train_set_16.fa.gz",
-                       multithread = FALSE,
+                       multithread = TRUE,
                        tryRC = TRUE) # also check with seq reverse compliments
 
 # show the results of the taxonomy assignment
@@ -267,6 +335,15 @@ phyloseq_obj <- phyloseq(otu_table(sequence_table_nochim,
                          phy_tree(tree_in)) # phylogeny from sequence variants
 ```
 
+```{r}
+# Sample source vs Sample type
+plot_bar(phyloseq_obj, x = "sample_source", fill = "Phylum")
+```
+
+
+
+
+
 ```{r example-phyloseq-plot-1}
 # alpha diversity metrics
 plot_richness(phyloseq_obj,
@@ -283,7 +360,7 @@ plot_richness(phyloseq_obj,
 ```{r example-phyloseq-plot-2}
 # phylogeny, yay!
 plot_tree(phyloseq_obj,
-          color = "Sex",
+          color = "Order",
           ladderize = TRUE) # this arranges the tree branches from short to long
 ```
 

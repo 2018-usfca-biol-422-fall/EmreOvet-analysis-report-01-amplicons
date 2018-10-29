@@ -304,15 +304,6 @@ melted_phyloseq <- psmelt(phyloseq_obj)
 ```{r exploring-datasets}
 names(melted_phyloseq)
 ```
-```{r exploring-datasets}
-summary(as.factor(melted_phyloseq$age_unit))
-```
-```{r exploring-datasets}
-table(melted_phyloseq$Phylum, melted_phyloseq$Abundance)
-```
-```{r exploring-datasets}
-summary(as.factor(melted_phyloseq$longitude))
-```
 
 ```{r The-most-abundant-phylum-in-each-key}
 melted_phyloseq %>%

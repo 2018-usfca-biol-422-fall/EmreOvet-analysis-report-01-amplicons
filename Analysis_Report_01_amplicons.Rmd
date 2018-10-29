@@ -335,7 +335,7 @@ melted_phyloseq %>%
   ggtitle("Abundance of family in Actinobacteria phylum found in left and right shift keys")
 
 ```
-```{r Abundance-of-genus-in-propopionibacteraiceae-family-found-in-left-and-right-shift-keys}
+```{r Abundance-of-genus-in-propopionibacteriaceae-family-found-in-left-and-right-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   filter(Family %in% c("Propionibacteriaceae")) %>%

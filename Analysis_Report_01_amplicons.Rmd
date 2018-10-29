@@ -106,7 +106,7 @@ filtered_output <- filterAndTrim(fwd = filenames_forward_reads,
                                  truncQ = 2, # cut off if quality gets this low
                                  rm.phix = TRUE,
                                  compress = TRUE,
-                                 multithread = TRUE)
+                                 multithread = FALSE)
 ```
 
 ```{r filtered-read-counts-table}
@@ -207,7 +207,7 @@ kable(track)
 # made up of known sequences
 taxa <- assignTaxonomy(sequence_table_nochim,
                        "data/training/rdp_train_set_16.fa.gz",
-                       multithread = TRUE,
+                       multithread = FALSE,
                        tryRC = TRUE) # also check with seq reverse compliments
 
 # show the results of the taxonomy assignment
@@ -304,7 +304,6 @@ melted_phyloseq <- psmelt(phyloseq_obj)
 ```{r exploring-datasets}
 names(melted_phyloseq)
 ```
-
 ```{r The-most-abundant-phylum-in-each-key}
 melted_phyloseq %>%
   ggplot(aes(x = sample_source,

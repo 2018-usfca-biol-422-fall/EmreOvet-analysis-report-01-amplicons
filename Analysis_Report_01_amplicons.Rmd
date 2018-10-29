@@ -325,7 +325,7 @@ melted_phyloseq %>%
 
 ```
 
-```{r Abundance-of-family-in-actinobacteria-family-found-in-left-and-right-shift-keys}
+```{r Abundance-of-family-in-actinobacteria-phylum-found-in-left-and-right-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   filter(Phylum %in% c("Actinobacteria")) %>%

@@ -312,51 +312,48 @@ melted_phyloseq %>%
              fill = Phylum)) +
   geom_col(position = position_dodge()) +
   theme(axis.text = element_text(angle = 90, hjust = 1)) +
-ggtitle ("The Most Abundant Phylum in Each Key")
+ggtitle("The Most Abundant Phylum in Each Key")
 ```
-
 ```{r Abundance-of-phyla-on-2-left-shift-keys-and-right-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = Phylum)) +
-  geom_col(position = position_dodge()) + 
+  geom_col(position = position_dodge()) +
     theme(axis.text = element_text(angle = 90, hjust = 1)) +
   ggtitle("Abundance of Phyla on 2 Left Shift Keys and Right Shift Key")
 
 ```
-
 ```{r Abundance-of-family-in-actinobacteria-phylum-found-in-left-and-right-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   filter(Phylum %in% c("Actinobacteria")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = Family)) +
-  geom_col(position = position_dodge()) + 
+  geom_col(position = position_dodge()) +
     theme(axis.text = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Abundance of family in Actinobacteria phylum found in left and right shift keys")
+  ggtitle("Abundance of family in Actinobacteria phylum found
+          in left and right shift keys")
 
 ```
-```{r Abundance-of-genus-in-propionibacteriaceae-family-found-in-left-and-right-shift-keys}
+```{r Abundance-of-genus-in-propionibacteriaceae-family-found-in-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   filter(Family %in% c("Propionibacteriaceae")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = Genus)) +
-  geom_col(position = position_dodge()) + 
-    theme(axis.text = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Abundance of genus in Propionibacteriaceae family found in left and right shift keys")
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of genus in Propionibacteriaceae family
+          found in left and right shift keys")
 ```
-```{r The-host-subject-identities-for-the-Propionibacteriaceae-family-found-in-left-and-right-shift-keys}
+```{r The-host-subject-identities-for-the-Propionibacteriaceae-family-found-in-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
   filter(Family %in% c("Propionibacteriaceae")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = host_subject_id)) +
-  geom_col(position = position_dodge()) + 
-    theme(axis.text = element_text(angle = 90, hjust = 1)) +
-    ggtitle("The Host Subject Identities For The Propionibacteriaceae Family Found In Shift Keys")
-
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("The Host Subject Identities For The Propionibacteriaceae
+            Family Found In Shift Keys")
 ```
-
-
-
 # Discussion
 
 Add around 2-3 pages interpreting your results and considering future directions one might take in analyzing these data.

@@ -1,7 +1,7 @@
 ---
 title: "Analysis Report 1: Your Title Here"
-author: "Don Francisco"
-date: "October 20, 2017"
+author: "Emre Ovet"
+date: "October 31, 2018"
 output: github_document
 bibliography: references.bib
 csl: bioinformatics.csl
@@ -9,17 +9,19 @@ csl: bioinformatics.csl
 
 # Introduction
 
-Add about 1.5-2 pages here. Must cite at least 5 peer reviewed articles.
+The human body hosts millions of bacterial communities that are beneficial or harmful for their host, with varying abundances and phyla. One particular organ of the human body, that is, the tissue, has been recently under the scope of the microbiologists due to the diversity and the abundance of bacterial communities on its surface. One of the research topics on the bacteria living on the skin surface investigates if it is possible to use skin bacterial communities for forensic investigations.
 
 # Methods
 
 ## Sample origin and sequencing
+We obtained our data from the keyboard analysis conducted by Fierer et al.[@fierer2010forensic] .For the keyboard analysis, keys from 3 personal computer keyboards which belong to 3 healthy individuals with ages varying from 20 to 35 years were swabbed along with the fingertips of their owners by Fierer et al.. 2 of these individuals share the same working space. The keyboards had not been touched for 30 minutes before swabbing and each keyboard swabbed by Fierer et al. between 10 minute intervals. Then, space bar keys from 15 personal or public computer keyboards located in University of Colorado Campus were swabbed. In order to sample skin surfaces and keyboards, pre- moistured and autoclaved cotton-tipped swabs were used. All the swabs were kept at -80 Celsius before DNA extraction. 
 
-Add about half a page here. In this section instead of first person (I/we), use Fierer et al., since you'll just be describing what they did, based on the methods in their paper.
+ The genomic DNA was extracted by Fierer et al. using MO BIO Powersoil DNA isolation kit [@fierer2010forensic]. Then, 16S rRNA genes were amplified and used in PCR. Furthermore, agarose gel electrophoresis was conducted to visualize the replicate amplicons. Amplicon DNA concentrations were analyzed using Quant-iTPicoGreen dsDNA reagent and kit. Then, a pellet was prepared using cleaned and quantified amplicons for pyrosequencing. Fierer et al. used 454 Life Sciences Genome Sequencer FLX instrument by the Environmental Genomics Core Facility at the University of South Carolina.
+ 
+ For sequence analyses, the criteria established for excluding low quality sequences is that all the sequences should be 200 and 300 base pairs in length, have a quality score higher than 25, don't contain ambigious characters, uncorrectable barcode and should contain primer sequence [@fierer2010forensic].
 
 ## Computational
 
-These are the methods you used. Should probably be at least a half of a page. At a very minimum should include citations for DADA2 [@callahan2016] and phyloseq [@mcmurdie2013]. Note that these don't count towards the five references you need to cite in the introduction.
 
 # Results
 
@@ -267,39 +269,9 @@ phyloseq_obj <- phyloseq(otu_table(sequence_table_nochim,
                          phy_tree(tree_in)) # phylogeny from sequence variants
 ```
 
-```{r}
-# Sample source vs Sample type
-plot_bar(phyloseq_obj, x = "sample_source", fill = "Phylum")
-```
-
-
-
-
-
-```{r example-phyloseq-plot-1}
-# alpha diversity metrics
-plot_richness(phyloseq_obj,
-              x = "sample_type",
-              measures = c("Shannon", "Simpson"),
-              color = "Sex") +
-  xlab("Sample origin") +
-  geom_jitter(width = 0.2) +
-  theme_bw()
-```
-
-**Figure 1**: Alpha diversity measures of the two sample types, colored by gender.
-
-```{r example-phyloseq-plot-2}
-# phylogeny, yay!
-plot_tree(phyloseq_obj,
-          color = "Order",
-          ladderize = TRUE) # this arranges the tree branches from short to long
-```
-
-**Figure 2**: Inferred phylogeny of sequences, with points on tips representing samples within which each particular taxa occurred. Tree represents phylogeny inferred using FastTree.
-
 ```{r melt-phyloseq}
 melted_phyloseq <- psmelt(phyloseq_obj)
+melted_phyloseq$sample_source[melted_phyloseq$sample_source == "Left_Shift"] <- "Left_shift"
 ```
 ```{r exploring-datasets}
 names(melted_phyloseq)

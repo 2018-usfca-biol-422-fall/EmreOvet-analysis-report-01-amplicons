@@ -22,6 +22,7 @@ We obtained our data from the keyboard analysis conducted by Fierer et al.[@fier
 
 ## Computational
 
+First of all, we started our computational analysis by loading packages from 
 
 # Results
 
@@ -271,7 +272,8 @@ phyloseq_obj <- phyloseq(otu_table(sequence_table_nochim,
 
 ```{r melt-phyloseq}
 melted_phyloseq <- psmelt(phyloseq_obj)
-melted_phyloseq$sample_source[melted_phyloseq$sample_source == "Left_Shift"] <- "Left_shift"
+melted_phyloseq$sample_source[
+  melted_phyloseq$sample_source == "Left_Shift"] <- "Left_shift"
 ```
 ```{r exploring-datasets}
 names(melted_phyloseq)

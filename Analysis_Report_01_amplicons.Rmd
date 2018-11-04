@@ -22,7 +22,10 @@ We obtained our data from the keyboard analysis conducted by Fierer et al.[@fier
 
 ## Computational
 
-First of all, we started our computational analysis by loading packages from 
+First of all, we started our computational analysis by loading genereal-use packages from
+bioconductor and GitHub. Then, we set the base path for our input data files from
+keyboard study, sorted the path to ensure samples are in order, extracted sample names and specified the full path for each of the filenames_forward_reads [@callahan2016; @mcmurdie2013]. Next, we plotted the quality profiles of each 20 samples. After checking those quality profiles,
+we created a diretory called "filtered_reads_path", placed our filtered files inside the filtered/ subdirectory in it and trimmed the lower quality sequences [@callahan2016; @mcmurdie2013]. Then, we produced a table of read counts before and after trimming. This was followed by building error models from each of the samples and visualizing errors with plots to make sure error models matched our data. After checking the plots, we removed all the replicated sequences to increase DADA2's accuracy [@callahan2016; @fierer2010forensic]. Next, we ran DADA2 to apply the core sample inference algorith to the dereplicated data [@callahan2016; @mcmurdie2013]. After DADA2 ran succesfully, we created a new sequence table with "samples" rows and "sequnce variants" columns. This was followed by an histogram of sequence lenghts to check the distribution of trimmed and denoised sequences. Then, we removed the chimeras from our cleaned reads to obtain just non-chimeric reads. After that, we builded a table of pipeline read counts to see how many sequences remain at each step of the pipeline. Next, we assigned taxonomy to each sequence variant. After assigning taxonomy, we extracted sequences to Fasta and builded a phylogeny using DADA2 [@callahan2016; @mcmurdie2013]. Finally, we read in the phylogeny and construct a Phyloseq object [@fierer2010forensic; @mcmurdie2013]. After completing all these steps, we melted all 3 metadata together, explored the dataset and made plots using ggplot.
 
 # Results
 
@@ -67,7 +70,7 @@ library("phyloseq")
 ```{r extract-sample-and-file-names}
 # NOTE: Much of the following follows the DADA2 tutorials available here:
 # https://benjjneb.github.io/dada2/tutorial.html
-# Accessed October 19, 2017
+# Accessed October 19, 2018
 
 # set the base path for our input data files
 path <- "data/raw_data"
@@ -317,15 +320,15 @@ melted_phyloseq %>%
   ggtitle("Abundance of genus in Propionibacteriaceae family
           found in left and right shift keys")
 ```
-```{r The-host-subject-identities-for-the-Propionibacteriaceae-family-found-in-shift-keys}
+```{r The-host-subject-identities-for-the-Propionibacterium-genus-found-in-shift-keys}
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
-  filter(Family %in% c("Propionibacteriaceae")) %>%
+  filter(Genus %in% c("Propionibacterium")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = host_subject_id)) +
   geom_col(position = position_dodge()) +
   theme(axis.text = element_text(angle = 90, hjust = 1)) +
-  ggtitle("The Host Subject Identities For The Propionibacteriaceae
-            Family Found In Shift Keys")
+  ggtitle("The Host Subject Identities For The Propionibacterium
+            Genus Found In Shift Keys")
 ```
 # Discussion
 

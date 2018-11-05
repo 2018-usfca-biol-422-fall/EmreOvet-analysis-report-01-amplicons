@@ -1,12 +1,14 @@
-Analysis Report 1: Your Title Here
+Analysis Report 1: The Level of Similarities and Differences Between Skin Bacterial Communities On Left And Right Hands
 ================
-Don Francisco
-October 20, 2017
+Emre Ovet
+October 31, 2018
 
 Introduction
 ============
 
-The human body hosts millions of bacterial communities that are beneficial or harmful for their host, with varying abundances and phyla. One particular organ of the human body, that is, the tissue, has been recently under the scope of the microbiologists due to the diversity and the abundance of bacterial communities on its surface. One of the research topics on the bacteria living on the skin surface investigates if it is possible to use skin bacterial communities for forensic investigations.
+The human body hosts millions of bacterial communities that are beneficial or harmful for their host, with varying abundances and phyla (Costello *et al.*, 2009). One particular organ of the human body, that is, the tissue, has been recently under the scope of the microbiologists due to the diversity and the abundance of bacterial communities on its surface (Findley *et al.*, 2013). One of the research topics on the bacteria living on the skin surface investigates if it is possible to use skin bacterial communities for forensic investigations. This research was conducted by Fierer et al. and they hypothesized that it is possible. In order to test their hypothesis, they carried out three interrelated studies that combine phylogenetic community analysis with high-throughput pyrosequencing methods (Callahan *et al.*, 2016; Fierer *et al.*, 2010). They compared bacterial communities on keyboard keys with those found on the finger surfaces of their owners, examined the similarity of bacterial communities on different objects kept in different temperatures and they matched computer mice with individuals who used them by comparing the bacterial community found on the mice with a bacterial community database created by samples obtained from hundreds of people. After analysing their work, we came up with a new question, that is, are the bacterial communities in left and right hands similar to each other in terms of variety and abundance? We hypothesize that they are different from each other since right-handed people tend to make contact with objects using their right hand and left-handed people tend to use their left hand to make contact with objects in daily life. This will result in having a higher variety and abundance of bacteria in right hands of right-handed people compared to their left hand and a higher variety and abundance of bacterium in left hands of the left-handed people compared to their right hand. However, the population of left-handed people is only %10 of World's population (Hardyck and Petrinovich, 1977), therefore, the overall variety and abundance of bacteria in right hands should be higher than left hands when we consider the total human population in the World. We believe this is an important topic for research because if we can prove the bacterial communities in left and right hands are different from each other in terms of variety and abundance, this might have further implications on forensic investigation using skin bacterial communities. For instance, by analysing the variety and abundance of bacterial communities on the surface of objects in a crime scene, we can have an idea if the criminal is right or left handed and if the criminal turns out to be left-handed, that'll allow the police to eliminate most of the names on their list for possible suspects. It might also have implications on hygiene and sanitation sector. For example, hand sanitizer companies can develop two different sanitizer gel formulas that are specific to eliminate the pathogenic bacteria found only in left and right hands. This would have a great impact on public health, decrease elementary school absenteeisms caused by infections (Hammond *et al.*, 2000) and also decrease the infection rates in acute care facilities (Hilburn *et al.*, 2003).
+
+In order to test our hypothesis, we are gonna use the data from the keyboard experiment of Fierer et al. which can be found at the NCBI sequence read archive with the study number ERP022626. Our primary focus is going to be on the surface of little fingers, therefore, we'll be analyzing left and right shift keys to present the bacterial communities on left and right hands in a miniscale. Using the DADA2 package, we are gonna create an amplicon sequence variant table that records the number of times each exact amplicon sequence variant observed in each sample (Callahan *et al.*, 2016). Then, using the pyloseq package, we are gonna store all related phylogenetic sequencing data as single experiment-level object (McMurdie and Holmes, 2013). After that, we are gonna melt all the metadata together using R and make plots on the most abundant phyla in each key using ggplot to see how similar the keys and the fingertips are overall. Next, we are gonna make plots on the most abundant phyla,family and genera in left and right shift keys to see how similar they are in different levels of taxonomy. Finally, to make sure the information we obtained up until this point is not biased ,that is, both of the keys have bacteria from left and right-handed individuals, we are gonna make a final plot showing from which individuals the genera are obtained from in each key.
 
 Methods
 =======
@@ -14,19 +16,21 @@ Methods
 Sample origin and sequencing
 ----------------------------
 
-We obtained our data from the keyboard analysis conducted by Fierer et al..For the keyboard analysis, keys from 3 personal computer keyboards which belong to 3 healthy individuals with ages varying from 20 to 35 years were swabbed along with the fingertips of their owners by Fierer et al.. 2 of these individuals share the same working space. The keyboards had not been touched for 30 minutes before swabbing and each keyboard swabbed by Fierer et al. between 10 minute intervals. Then, space bar keys from 15 personal or public computer keyboards located in University of Colorado Campus were swabbed. In order to sample skin surfaces and keyboards, pre- moistured and autoclaved cotton-tipped swabs were used. All the swabs were kept at -80 Celsius before DNA extraction.
+We obtained our data from the keyboard analysis conducted by Fierer et al.(Fierer *et al.*, 2010) .For the keyboard analysis, keys from 3 personal computer keyboards which belong to 3 healthy individuals with ages varying from 20 to 35 years were swabbed along with the fingertips of their owners by Fierer et al.. 2 of these individuals share the same working space. The keyboards had not been touched for 30 minutes before swabbing and each keyboard swabbed by Fierer et al. between 10 minute intervals. Then, space bar keys from 15 personal or public computer keyboards located in University of Colorado Campus were swabbed. In order to sample skin surfaces and keyboards, pre- moistured and autoclaved cotton-tipped swabs were used. All the swabs were kept at -80 Celsius before DNA extraction.
 
-The genomic DNA was extracted by Fierer et al. using MO BIO Powersoil DNA isolation kit.
+The genomic DNA was extracted by Fierer et al. using MO BIO Powersoil DNA isolation kit (Fierer *et al.*, 2010). Then, 16S rRNA genes were amplified and used in PCR. Furthermore, agarose gel electrophoresis was conducted to visualize the replicate amplicons. Amplicon DNA concentrations were analyzed using Quant-iTPicoGreen dsDNA reagent and kit. Then, a pellet was prepared using cleaned and quantified amplicons for pyrosequencing. Fierer et al. used 454 Life Sciences Genome Sequencer FLX instrument by the Environmental Genomics Core Facility at the University of South Carolina.
+
+For sequence analyses, the criteria established for excluding low quality sequences is that all the sequences should be 200 and 300 base pairs in length, have a quality score higher than 25, don't contain ambigious characters, uncorrectable barcode and should contain primer sequence (Fierer *et al.*, 2010).
 
 Computational
 -------------
 
-These are the methods you used. Should probably be at least a half of a page. At a very minimum should include citations for DADA2 (Callahan *et al.*, 2016) and phyloseq (McMurdie and Holmes, 2013). Note that these don't count towards the five references you need to cite in the introduction.
+First of all, we started our computational analysis by loading genereal-use packages from bioconductor and GitHub. Then, we set the base path for our input data files from keyboard study, sorted the path to ensure samples are in order, extracted sample names and specified the full path for each of the filenames\_forward\_reads (Callahan *et al.*, 2016; McMurdie and Holmes, 2013). Next, we plotted the quality profiles of each 20 samples. After checking those quality profiles, we created a diretory called "filtered\_reads\_path", placed our filtered files inside the filtered/ subdirectory in it and trimmed the lower quality sequences (Callahan *et al.*, 2016; McMurdie and Holmes, 2013). Then, we produced a table of read counts before and after trimming. This was followed by building error models from each of the samples and visualizing errors with plots to make sure error models matched our data. After checking the plots, we removed all the replicated sequences to increase DADA2's accuracy (Callahan *et al.*, 2016; Fierer *et al.*, 2010). Next, we ran DADA2 to apply the core sample inference algorith to the dereplicated data (Callahan *et al.*, 2016; McMurdie and Holmes, 2013). After DADA2 ran succesfully, we created a new sequence table with "samples" rows and "sequnce variants" columns. This was followed by an histogram of sequence lenghts to check the distribution of trimmed and denoised sequences. Then, we removed the chimeras from our cleaned reads to obtain just non-chimeric reads. After that, we builded a table of pipeline read counts to see how many sequences remain at each step of the pipeline. Next, we assigned taxonomy to each sequence variant. After assigning taxonomy, we extracted sequences to Fasta and builded a phylogeny using DADA2 (Callahan *et al.*, 2016; McMurdie and Holmes, 2013). Finally, we read in the phylogeny and construct a Phyloseq object (Fierer *et al.*, 2010; McMurdie and Holmes, 2013). After completing all these steps, we melted all 3 metadata together, explored the dataset and made plots using ggplot.
 
 Results
 =======
 
-In addition to a minimum of 3-4 figures/tables (and associated captions), you should include sufficient text in this section to describe what your findings were. Remember that in the results section you just describe what you found, but you don't interpret it - that happens in the discussion.
+After analyzing our data, we found out that the bacterial communities in left and right shift keys have similar phyla present on them with Actinobacteria being the most abundant phylum, but even though the ranking of the phyla in terms of abundance are same, the actual numbers of abundances in two keys are different from each other. For instance, left shift key has a higher abundance in Actinobacteria, Firmicutes, Fusobacteria and Bacteroidetes, whereas left shift has a higher abundance in Candidatus Saccharibacteria. Moreover, the families in Actinobacteria phylum that are found in left and right shift keys are also similar to each other, with *Propionibacteriaceae* being the most abundant family. Once again, the actual number of abundances in two keys are different from each other left shift key has a significant amount of unidentified families and has two additional families present, *Coriobacteriaceae* and *Micronosporaceae*, but they have very small abundances. Right shift key has also two additional families present on it, *Dermabacteraceae* and *Dietziaceae*, but just like the ones in left shift key, they have very small abundances. Furthermore, the genera in *Propionibacteriaceae* found in left and right shift keys are similar to each other, with *Propionibacterium* being the most abundant one. It's abundance is about two times higher in right shift and also both shift keys have a very small amount of *Microlunatus* genus. In addition, the *Propionibacterium* genus comes from the individuals with host subject identities M2 and M3 in both shift keys. In left shift key, however, the abundances of *Propionibacterium* came from M2 is higher in left shift than right shift and the abundances of *Propionibacterium* came from M3 is higher in right shift then left shift, which suggest that M2 is left-handed and M3 is right-handed. As a result of all these findings, it is possible to say that the similarity between the left and right shift keys is significantly high in terms of the phyla, families and genera found on them but the abundances of the most abundant phylum, family and genus in both shift keys are different from each other.
 
 ``` r
 # Be sure to install these packages before running this script
@@ -67,7 +71,7 @@ library("phyloseq")
 ``` r
 # NOTE: Much of the following follows the DADA2 tutorials available here:
 # https://benjjneb.github.io/dada2/tutorial.html
-# Accessed October 19, 2017
+# Accessed October 19, 2018
 
 # set the base path for our input data files
 path <- "data/raw_data"
@@ -2765,7 +2769,7 @@ unname(taxa)
     ##  [781,] "Bacteria" "Bacteroidetes"               "Flavobacteriia"       
     ##  [782,] "Bacteria" "Firmicutes"                  "Clostridia"           
     ##  [783,] "Bacteria" "Actinobacteria"              "Actinobacteria"       
-    ##  [784,] "Bacteria" NA                            NA                     
+    ##  [784,] "Bacteria" "Proteobacteria"              NA                     
     ##  [785,] "Bacteria" "Proteobacteria"              "Alphaproteobacteria"  
     ##  [786,] "Bacteria" "Firmicutes"                  "Bacilli"              
     ##  [787,] "Bacteria" "Proteobacteria"              "Gammaproteobacteria"  
@@ -3320,7 +3324,7 @@ unname(taxa)
     ## [1336,] "Bacteria" "Firmicutes"                  "Clostridia"           
     ## [1337,] "Bacteria" "Actinobacteria"              "Actinobacteria"       
     ## [1338,] "Bacteria" "Firmicutes"                  "Bacilli"              
-    ## [1339,] "Bacteria" NA                            NA                     
+    ## [1339,] "Bacteria" "Proteobacteria"              NA                     
     ## [1340,] "Bacteria" "Firmicutes"                  "Clostridia"           
     ## [1341,] "Bacteria" "Bacteroidetes"               "Flavobacteriia"       
     ## [1342,] "Bacteria" "Firmicutes"                  "Bacilli"              
@@ -3428,7 +3432,7 @@ unname(taxa)
     ## [1444,] "Bacteria" "Proteobacteria"              "Alphaproteobacteria"  
     ## [1445,] "Bacteria" "Bacteroidetes"               "Bacteroidia"          
     ## [1446,] "Bacteria" "Proteobacteria"              "Alphaproteobacteria"  
-    ## [1447,] "Bacteria" "Firmicutes"                  NA                     
+    ## [1447,] "Bacteria" "Firmicutes"                  "Clostridia"           
     ## [1448,] "Bacteria" "Bacteroidetes"               "Bacteroidia"          
     ## [1449,] "Bacteria" "Acidobacteria"               "Acidobacteria_Gp4"    
     ## [1450,] "Bacteria" "Proteobacteria"              "Betaproteobacteria"   
@@ -3589,7 +3593,7 @@ unname(taxa)
     ##   [71,] "Actinomycetales"     "Propionibacteriaceae"             
     ##   [72,] "Bacillales"          "Staphylococcaceae"                
     ##   [73,] "Actinomycetales"     "Actinomycetaceae"                 
-    ##   [74,] "Bacillales"          NA                                 
+    ##   [74,] "Bacillales"          "Alicyclobacillaceae"              
     ##   [75,] "Selenomonadales"     "Veillonellaceae"                  
     ##   [76,] "Bacteroidales"       "Bacteroidaceae"                   
     ##   [77,] "Clostridiales"       "Peptoniphilaceae"                 
@@ -3776,7 +3780,7 @@ unname(taxa)
     ##  [258,] "Lactobacillales"     "Streptococcaceae"                 
     ##  [259,] "Clostridiales"       "Lachnospiraceae"                  
     ##  [260,] "Clostridiales"       "Ruminococcaceae"                  
-    ##  [261,] "Bacillales"          NA                                 
+    ##  [261,] "Bacillales"          "Alicyclobacillaceae"              
     ##  [262,] "Burkholderiales"     "Burkholderiaceae"                 
     ##  [263,] "Lactobacillales"     "Lactobacillaceae"                 
     ##  [264,] "Clostridiales"       "Ruminococcaceae"                  
@@ -3926,7 +3930,7 @@ unname(taxa)
     ##  [408,] "Pseudomonadales"     "Pseudomonadaceae"                 
     ##  [409,] "Actinomycetales"     "Propionibacteriaceae"             
     ##  [410,] "Chloroplast"         "Streptophyta"                     
-    ##  [411,] "Clostridiales"       "Clostridiales_Incertae_Sedis_XIII"
+    ##  [411,] "Clostridiales"       NA                                 
     ##  [412,] "Lactobacillales"     "Streptococcaceae"                 
     ##  [413,] "Clostridiales"       "Clostridiales_Incertae_Sedis_XI"  
     ##  [414,] "Clostridiales"       "Peptoniphilaceae"                 
@@ -4516,7 +4520,7 @@ unname(taxa)
     ##  [998,] "Burkholderiales"     "Comamonadaceae"                   
     ##  [999,] "Flavobacteriales"    "Flavobacteriaceae"                
     ## [1000,] "Lactobacillales"     "Streptococcaceae"                 
-    ## [1001,] "Bacillales"          "Alicyclobacillaceae"              
+    ## [1001,] "Bacillales"          NA                                 
     ## [1002,] "Campylobacterales"   "Campylobacteraceae"               
     ## [1003,] "Actinomycetales"     NA                                 
     ## [1004,] "Bacillales"          "Bacillales_Incertae_Sedis_XI"     
@@ -4647,7 +4651,7 @@ unname(taxa)
     ## [1129,] "Sphingomonadales"    "Sphingomonadaceae"                
     ## [1130,] "Rhodobacterales"     "Rhodobacteraceae"                 
     ## [1131,] "Actinomycetales"     "Nocardioidaceae"                  
-    ## [1132,] "Actinomycetales"     "Nocardioidaceae"                  
+    ## [1132,] "Actinomycetales"     NA                                 
     ## [1133,] NA                    NA                                 
     ## [1134,] "Fusobacteriales"     "Leptotrichiaceae"                 
     ## [1135,] "Clostridiales"       "Peptoniphilaceae"                 
@@ -4657,7 +4661,7 @@ unname(taxa)
     ## [1139,] "Clostridiales"       "Lachnospiraceae"                  
     ## [1140,] "Actinomycetales"     "Intrasporangiaceae"               
     ## [1141,] "Clostridiales"       NA                                 
-    ## [1142,] "Clostridiales"       "Clostridiales_Incertae_Sedis_XIII"
+    ## [1142,] "Clostridiales"       NA                                 
     ## [1143,] "Clostridiales"       "Lachnospiraceae"                  
     ## [1144,] "Clostridiales"       "Ruminococcaceae"                  
     ## [1145,] "Clostridiales"       NA                                 
@@ -4800,7 +4804,7 @@ unname(taxa)
     ## [1282,] "Actinomycetales"     "Microbacteriaceae"                
     ## [1283,] "Actinomycetales"     "Actinomycetaceae"                 
     ## [1284,] "Sphingomonadales"    "Sphingomonadaceae"                
-    ## [1285,] "Bacillales"          NA                                 
+    ## [1285,] "Bacillales"          "Alicyclobacillaceae"              
     ## [1286,] "Actinomycetales"     "Corynebacteriaceae"               
     ## [1287,] "Bacteroidales"       "Porphyromonadaceae"               
     ## [1288,] "Sphingobacteriales"  "Sphingobacteriaceae"              
@@ -4928,7 +4932,7 @@ unname(taxa)
     ## [1410,] "Fusobacteriales"     "Leptotrichiaceae"                 
     ## [1411,] "Rhizobiales"         "Methylobacteriaceae"              
     ## [1412,] "Lactobacillales"     "Lactobacillaceae"                 
-    ## [1413,] "Actinomycetales"     NA                                 
+    ## [1413,] "Actinomycetales"     "Nakamurellaceae"                  
     ## [1414,] "Bacteroidales"       "Prevotellaceae"                   
     ## [1415,] "Cytophagales"        "Cytophagaceae"                    
     ## [1416,] "Clostridiales"       "Peptoniphilaceae"                 
@@ -4973,7 +4977,7 @@ unname(taxa)
     ## [1455,] "Acidimicrobiales"    NA                                 
     ## [1456,] "Sphingobacteriales"  "Sphingobacteriaceae"              
     ## [1457,] "Lactobacillales"     "Aerococcaceae"                    
-    ## [1458,] "Clostridiales"       NA                                 
+    ## [1458,] "Clostridiales"       "Clostridiales_Incertae_Sedis_XI"  
     ## [1459,] "Actinomycetales"     "Nocardioidaceae"                  
     ## [1460,] "Clostridiales"       "Clostridiales_Incertae_Sedis_XI"  
     ## [1461,] "Bacteroidales"       "Prevotellaceae"                   
@@ -5310,7 +5314,7 @@ unname(taxa)
     ##  [258,] "Streptococcus"                  
     ##  [259,] "Dorea"                          
     ##  [260,] "Faecalibacterium"               
-    ##  [261,] NA                               
+    ##  [261,] "Tumebacillus"                   
     ##  [262,] "Ralstonia"                      
     ##  [263,] "Lactobacillus"                  
     ##  [264,] NA                               
@@ -5460,17 +5464,17 @@ unname(taxa)
     ##  [408,] "Pseudomonas"                    
     ##  [409,] "Propionibacterium"              
     ##  [410,] NA                               
-    ##  [411,] "Anaerovorax"                    
+    ##  [411,] NA                               
     ##  [412,] "Streptococcus"                  
     ##  [413,] "Anaerococcus"                   
     ##  [414,] "Peptoniphilus"                  
-    ##  [415,] NA                               
+    ##  [415,] "Haemophilus"                    
     ##  [416,] "Prevotella"                     
     ##  [417,] "Roseburia"                      
     ##  [418,] "Faecalibacterium"               
     ##  [419,] "Diaphorobacter"                 
     ##  [420,] NA                               
-    ##  [421,] NA                               
+    ##  [421,] "Tumebacillus"                   
     ##  [422,] "Actinomyces"                    
     ##  [423,] "Propionibacterium"              
     ##  [424,] "Acinetobacter"                  
@@ -5589,7 +5593,7 @@ unname(taxa)
     ##  [537,] "Anaerococcus"                   
     ##  [538,] "Pseudomonas"                    
     ##  [539,] NA                               
-    ##  [540,] NA                               
+    ##  [540,] "Tumebacillus"                   
     ##  [541,] "Pseudomonas"                    
     ##  [542,] "Enterobacter"                   
     ##  [543,] "Enhydrobacter"                  
@@ -5624,7 +5628,7 @@ unname(taxa)
     ##  [572,] "Streptococcus"                  
     ##  [573,] "Gemella"                        
     ##  [574,] NA                               
-    ##  [575,] "Dorea"                          
+    ##  [575,] NA                               
     ##  [576,] "Fusobacterium"                  
     ##  [577,] "Gemella"                        
     ##  [578,] "Intestinibacter"                
@@ -5661,7 +5665,7 @@ unname(taxa)
     ##  [609,] "Campylobacter"                  
     ##  [610,] "Clostridium_sensu_stricto"      
     ##  [611,] "Anaerostipes"                   
-    ##  [612,] "Haemophilus"                    
+    ##  [612,] NA                               
     ##  [613,] "Leptotrichia"                   
     ##  [614,] "Intestinibacter"                
     ##  [615,] "Aggregatibacter"                
@@ -5741,7 +5745,7 @@ unname(taxa)
     ##  [689,] "Corynebacterium"                
     ##  [690,] "Massilia"                       
     ##  [691,] "Paenibacillus"                  
-    ##  [692,] "Anaerostipes"                   
+    ##  [692,] NA                               
     ##  [693,] "Peptoniphilus"                  
     ##  [694,] "Veillonella"                    
     ##  [695,] "Turicibacter"                   
@@ -5760,7 +5764,7 @@ unname(taxa)
     ##  [708,] "Ezakiella"                      
     ##  [709,] "Prevotella"                     
     ##  [710,] "Fusobacterium"                  
-    ##  [711,] "Hydrogenophaga"                 
+    ##  [711,] NA                               
     ##  [712,] "Anaerococcus"                   
     ##  [713,] "Acinetobacter"                  
     ##  [714,] "Subdoligranulum"                
@@ -5781,7 +5785,7 @@ unname(taxa)
     ##  [729,] "Acinetobacter"                  
     ##  [730,] "Streptococcus"                  
     ##  [731,] "Paracoccus"                     
-    ##  [732,] NA                               
+    ##  [732,] "Alloprevotella"                 
     ##  [733,] "Neisseria"                      
     ##  [734,] "Pseudomonas"                    
     ##  [735,] "Dietzia"                        
@@ -5790,7 +5794,7 @@ unname(taxa)
     ##  [738,] "Staphylococcus"                 
     ##  [739,] "Propionibacterium"              
     ##  [740,] "Rothia"                         
-    ##  [741,] NA                               
+    ##  [741,] "Neisseria"                      
     ##  [742,] "Porphyromonas"                  
     ##  [743,] "Prevotella"                     
     ##  [744,] "Alloiococcus"                   
@@ -5841,7 +5845,7 @@ unname(taxa)
     ##  [789,] "Enhydrobacter"                  
     ##  [790,] "Haemophilus"                    
     ##  [791,] "Duganella"                      
-    ##  [792,] "Alloprevotella"                 
+    ##  [792,] NA                               
     ##  [793,] "Massilia"                       
     ##  [794,] "Corynebacterium"                
     ##  [795,] "Streptococcus"                  
@@ -5922,7 +5926,7 @@ unname(taxa)
     ##  [870,] NA                               
     ##  [871,] "Pseudomonas"                    
     ##  [872,] "Porphyromonas"                  
-    ##  [873,] NA                               
+    ##  [873,] "Haemophilus"                    
     ##  [874,] "Arthrobacter"                   
     ##  [875,] "Actinomyces"                    
     ##  [876,] "Corynebacterium"                
@@ -5987,7 +5991,7 @@ unname(taxa)
     ##  [935,] "Ruminococcus"                   
     ##  [936,] "Buchnera"                       
     ##  [937,] "Staphylococcus"                 
-    ##  [938,] NA                               
+    ##  [938,] "Tumebacillus"                   
     ##  [939,] "Prevotella"                     
     ##  [940,] "Rothia"                         
     ##  [941,] "Epilithonimonas"                
@@ -6056,7 +6060,7 @@ unname(taxa)
     ## [1004,] "Gemella"                        
     ## [1005,] "Dolosigranulum"                 
     ## [1006,] NA                               
-    ## [1007,] NA                               
+    ## [1007,] "Lachnospira"                    
     ## [1008,] "Neisseria"                      
     ## [1009,] "Dialister"                      
     ## [1010,] NA                               
@@ -6069,7 +6073,7 @@ unname(taxa)
     ## [1017,] "Stenotrophomonas"               
     ## [1018,] NA                               
     ## [1019,] "Prevotella"                     
-    ## [1020,] "Blautia"                        
+    ## [1020,] NA                               
     ## [1021,] "Butyrivibrio"                   
     ## [1022,] "Gemella"                        
     ## [1023,] "Segetibacter"                   
@@ -6084,7 +6088,7 @@ unname(taxa)
     ## [1032,] "Prevotella"                     
     ## [1033,] "Blautia"                        
     ## [1034,] "Subdoligranulum"                
-    ## [1035,] NA                               
+    ## [1035,] "Anaerovorax"                    
     ## [1036,] "Faecalibacterium"               
     ## [1037,] "Pseudomonas"                    
     ## [1038,] "Murdochiella"                   
@@ -6106,7 +6110,7 @@ unname(taxa)
     ## [1054,] "Bacteroides"                    
     ## [1055,] NA                               
     ## [1056,] "Propionibacterium"              
-    ## [1057,] NA                               
+    ## [1057,] "Anaerostipes"                   
     ## [1058,] "Leptotrichia"                   
     ## [1059,] NA                               
     ## [1060,] "Bacteroides"                    
@@ -6181,7 +6185,7 @@ unname(taxa)
     ## [1129,] "Sphingobium"                    
     ## [1130,] "Paracoccus"                     
     ## [1131,] "Marmoricola"                    
-    ## [1132,] "Nocardioides"                   
+    ## [1132,] NA                               
     ## [1133,] NA                               
     ## [1134,] "Sneathia"                       
     ## [1135,] "Peptoniphilus"                  
@@ -6191,7 +6195,7 @@ unname(taxa)
     ## [1139,] NA                               
     ## [1140,] "Knoellia"                       
     ## [1141,] NA                               
-    ## [1142,] "Anaerovorax"                    
+    ## [1142,] NA                               
     ## [1143,] "Anaerostipes"                   
     ## [1144,] "Oscillibacter"                  
     ## [1145,] NA                               
@@ -6256,14 +6260,14 @@ unname(taxa)
     ## [1204,] "Selenomonas"                    
     ## [1205,] "Streptococcus"                  
     ## [1206,] "Brevibacterium"                 
-    ## [1207,] "Anaerostipes"                   
+    ## [1207,] NA                               
     ## [1208,] "Oscillibacter"                  
     ## [1209,] "Acinetobacter"                  
     ## [1210,] NA                               
     ## [1211,] NA                               
     ## [1212,] "Capnocytophaga"                 
     ## [1213,] "Bacteroides"                    
-    ## [1214,] "Clostridium_XlVa"               
+    ## [1214,] NA                               
     ## [1215,] "Prevotella"                     
     ## [1216,] "Macrococcus"                    
     ## [1217,] "Sphingomonas"                   
@@ -6299,13 +6303,13 @@ unname(taxa)
     ## [1247,] "Granulicatella"                 
     ## [1248,] "Moraxella"                      
     ## [1249,] "Actinomyces"                    
-    ## [1250,] "Clostridium_XVIII"              
+    ## [1250,] NA                               
     ## [1251,] "Chryseobacterium"               
     ## [1252,] "Sphingomonas"                   
     ## [1253,] "Armatimonas/Armatimonadetes_gp1"
     ## [1254,] "Brachymonas"                    
     ## [1255,] "Abiotrophia"                    
-    ## [1256,] NA                               
+    ## [1256,] "Flavisolibacter"                
     ## [1257,] "Elizabethkingia"                
     ## [1258,] "Shuttleworthia"                 
     ## [1259,] "Granulicatella"                 
@@ -6354,7 +6358,7 @@ unname(taxa)
     ## [1302,] NA                               
     ## [1303,] NA                               
     ## [1304,] NA                               
-    ## [1305,] NA                               
+    ## [1305,] "Alloprevotella"                 
     ## [1306,] "Parvimonas"                     
     ## [1307,] "Ramlibacter"                    
     ## [1308,] "Rhizobium"                      
@@ -6365,7 +6369,7 @@ unname(taxa)
     ## [1313,] "Leptotrichia"                   
     ## [1314,] "Rhizobacter"                    
     ## [1315,] "Niabella"                       
-    ## [1316,] "Aggregatibacter"                
+    ## [1316,] NA                               
     ## [1317,] "Microbacterium"                 
     ## [1318,] "Leptotrichia"                   
     ## [1319,] NA                               
@@ -6394,7 +6398,7 @@ unname(taxa)
     ## [1342,] NA                               
     ## [1343,] "Capnocytophaga"                 
     ## [1344,] "Terrisporobacter"               
-    ## [1345,] NA                               
+    ## [1345,] "Coprobacillus"                  
     ## [1346,] "Fusobacterium"                  
     ## [1347,] "Lactobacillus"                  
     ## [1348,] "Lactobacillus"                  
@@ -6426,8 +6430,8 @@ unname(taxa)
     ## [1374,] "Mogibacterium"                  
     ## [1375,] NA                               
     ## [1376,] "Paenibacillus"                  
-    ## [1377,] "Paenibacillus"                  
-    ## [1378,] "Clostridium_IV"                 
+    ## [1377,] NA                               
+    ## [1378,] NA                               
     ## [1379,] "Anaerococcus"                   
     ## [1380,] "Deinococcus"                    
     ## [1381,] NA                               
@@ -6462,7 +6466,7 @@ unname(taxa)
     ## [1410,] "Leptotrichia"                   
     ## [1411,] "Methylobacterium"               
     ## [1412,] "Lactobacillus"                  
-    ## [1413,] NA                               
+    ## [1413,] "Nakamurella"                    
     ## [1414,] "Prevotella"                     
     ## [1415,] "Flectobacillus"                 
     ## [1416,] "Peptoniphilus"                  
@@ -6517,7 +6521,7 @@ unname(taxa)
     ## [1465,] NA                               
     ## [1466,] "Prevotella"                     
     ## [1467,] "Fusobacterium"                  
-    ## [1468,] "Prevotella"                     
+    ## [1468,] NA                               
     ## [1469,] "Enterococcus"                   
     ## [1470,] "Porphyromonas"                  
     ## [1471,] NA                               
@@ -6531,7 +6535,7 @@ unname(taxa)
     ## [1479,] "Anaerococcus"                   
     ## [1480,] "Campylobacter"                  
     ## [1481,] "Prevotella"                     
-    ## [1482,] "Arcanobacterium"                
+    ## [1482,] NA                               
     ## [1483,] "Alloprevotella"                 
     ## [1484,] NA                               
     ## [1485,] "Aeromicrobium"                  
@@ -6543,7 +6547,7 @@ unname(taxa)
     ## [1491,] "Flavobacterium"                 
     ## [1492,] "Centipeda"                      
     ## [1493,] "Actinomyces"                    
-    ## [1494,] "Alloprevotella"                 
+    ## [1494,] NA                               
     ## [1495,] NA                               
     ## [1496,] NA                               
     ## [1497,] "Acinetobacter"                  
@@ -6638,6 +6642,8 @@ phyloseq_obj <- phyloseq(otu_table(sequence_table_nochim,
 
 ``` r
 melted_phyloseq <- psmelt(phyloseq_obj)
+melted_phyloseq$sample_source[
+  melted_phyloseq$sample_source == "Left_Shift"] <- "Left_shift"
 ```
 
 ``` r
@@ -6685,7 +6691,7 @@ melted_phyloseq %>%
 ggtitle("The Most Abundant Phylum in Each Key")
 ```
 
-![](Analysis_Report_01_amplicons_files/figure-markdown_github/The-most-abundant-phylum-in-each-key-1.png)
+![](Analysis_Report_01_amplicons_files/figure-markdown_github/The-most-abundant-phylum-in-each-key-1.png) **Figure 1** In figure 1, we can see that in every single key and in fingertips, Actinobacteria is the most abundant phylum with a very high difference compared to the second most abundant phylum, Firmicutes. In "I" and "U" keys, this difference is much smaller. Moreover, there is a negligible amount of unidentified phyla in some of the key bacteria.
 
 ``` r
 melted_phyloseq %>%
@@ -6696,7 +6702,7 @@ melted_phyloseq %>%
   ggtitle("Abundance of Phyla on 2 Left Shift Keys and Right Shift Key")
 ```
 
-![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-phyla-on-2-left-shift-keys-and-right-shift-keys-1.png)
+![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-phyla-on-2-left-shift-keys-and-right-shift-keys-1.png) **Figure 2** In figure 2, we can see that left and right shift keys have similar phyla present on them, with Actinobacteria being the most abundant one in both of them. The only differences between the two would be that right shift has a higher amount of Actinobacteria, Firmicutes, Bacteroidetes and Fusobacteria, whereas left shift has a higher amount of Candidatus Saccharibacteria and also has a negligible amount of unidentified phylum.
 
 ``` r
 melted_phyloseq %>%
@@ -6709,7 +6715,7 @@ melted_phyloseq %>%
           in left and right shift keys")
 ```
 
-![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-family-in-actinobacteria-phylum-found-in-left-and-right-shift-keys-1.png)
+![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-family-in-actinobacteria-phylum-found-in-left-and-right-shift-keys-1.png) **Figure 3** In figure 3, we can see that left and right shift keys have similar families in Actinobacteria phylum present on them, with *Propionibacteriaceae* being the most abundant one in both of them. Even though the order of the family abundances are the same, every single family present in those two keys have different abundances, except that for *Solirubrobacteraceae*, which seems to be the same in both of them. Furthermore, left shift key has a significant amount of unidentified families and two additional families present, *Coriobacteriaceae* and *Micronosporaceae*, with very small abundances. Moreover, right shift key has also two additional families present, *Dermabacteraceae* and *Dietziaceae*, once again, with very small abundances.
 
 ``` r
 melted_phyloseq %>%
@@ -6722,26 +6728,61 @@ melted_phyloseq %>%
           found in left and right shift keys")
 ```
 
-![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-genus-in-propionibacteriaceae-family-found-in-shift-keys-1.png)
+![](Analysis_Report_01_amplicons_files/figure-markdown_github/Abundance-of-genus-in-propionibacteriaceae-family-found-in-shift-keys-1.png) **Figure 4** In figure 4, we can see that left and right shift keys have similar genera in *Propionibacteriaceae* family present on them. The *propionibacterium* is the most abundant genus in both of them. The abundance of this genus is about two times higher in right shift. Moreover, there is a very small abundance of *Microlunatus* in both keys.
 
 ``` r
 melted_phyloseq %>%
   filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
-  filter(Family %in% c("Propionibacteriaceae")) %>%
+  filter(Genus %in% c("Propionibacterium")) %>%
   ggplot(aes(x = sample_source, y = Abundance, fill = host_subject_id)) +
   geom_col(position = position_dodge()) +
   theme(axis.text = element_text(angle = 90, hjust = 1)) +
-  ggtitle("The Host Subject Identities For The Propionibacteriaceae
-            Family Found In Shift Keys")
+  ggtitle("The Host Subject Identities For The Propionibacterium
+            Genus Found In Shift Keys")
 ```
 
-![](Analysis_Report_01_amplicons_files/figure-markdown_github/The-host-subject-identities-for-the-Propionibacteriaceae-family-found-in-shift-keys-1.png) \# Discussion
+![](Analysis_Report_01_amplicons_files/figure-markdown_github/The-host-subject-identities-for-the-Propionibacterium-genus-found-in-shift-keys-1.png) **Figure 5** In figure 5, we can see that the *Propionebacterium* genus found in left and right shift keys comes from the individuals with host subject identities M2 and M3. In left shift, the abundances of *Propionebacterium* came from M2 and M3 is close to each other whereas in right shift, this difference in abundance is higher. Overall, about 1000 of the *Propionebacterium* comes from the host M3 and about 350 from host M2.
 
-Add around 2-3 pages interpreting your results and considering future directions one might take in analyzing these data.
+Discussion
+==========
+
+Returning back to our central question: "Are the bacterial communities in left and right hands similar to each other in terms of variety and abundance?", we failed to find any major difference between the bacterial communities on two shift keys in terms of variety. The only variety differences was on the family level but since the abundances of the families that are unique to left or right shift keys are between 1 and 10 out of 800, they are not significant enough to consider. However, we were able to find one particular difference in terms of abundance between right and left shift keys, that is, abundance of the most abundant phylum, family and genus of right shift are always about two times higher than those of right shift. We also found out that our work was not biased since there are both left and right-handed individuals in this analysis. In light of all these results, we can say that the bacterial communities in left and right hands are similar to each other in terms of variety but they are different from each other in terms of abundance.
+
+This result doesn't support much the implications we previously talked in the introduction section, because we need more difference in variety of bacteria in order to find out if someone is left or right handed in forensic investigations and also the hand sanitizer companies won't really consider to manifacture different gel sanitizers for each hand since the bacterial varieties are the same in two hands. Moreover, our most abundant genus, *Propionibacterium*, is not a dangerous pathogen but it still causes acne on the skin, so the hand sanitizer companies can still develop their gel formulas to specifically target this bacterium to decrease the spread of this skin disease.
+
+It is not possible to say that our work completely concludes this question since we only focused on little finger surfaces, which is a small section of a hand. Therefore, there's still a lot of work that needs to be done on the rest of the fingers and on the palms as well to make a final conclusion. Another problem with our work is that we were able to analyze data on 2 individuals only, which is not large enough to make a conclusion involving the total population of Earth. We encourage the researchers to have a much greater sample of hands in the further experimentations on this topic.
 
 Sources Cited
 =============
 
+(<span class="citeproc-not-found" data-reference-id="Article">**???**</span>){callahan2016, title = {DADA2: High-resolution sample inference from Illumina amplicon data}, author = {Benjamin J Callahan and Paul J McMurdie and Michael J Rosen and Andrew W Han and Amy Jo A Johnson and Susan P Holmes}, journal = {Nature Methods}, volume = {13}, pages = {581-583}, year = {2016}, doi = {10.1038/nmeth.3869}, }
+
+(<span class="citeproc-not-found" data-reference-id="Article">**???**</span>){mcmurdie2013, author = {Paul J. McMurdie and Susan Holmes}, journal = {PLoS ONE}, pages = {e61217}, title = {phyloseq: An R package for reproducible interactive analysis and graphics of microbiome census data}, volume = {8}, number = {4}, year = {2013}, url = {<http://dx.plos.org/10.1371/journal.pone.0061217>}, }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){fierer2010forensic, title={Forensic identification using skin bacterial communities}, author={Fierer, Noah and Lauber, Christian L and Zhou, Nick and McDonald, Daniel and Costello, Elizabeth K and Knight, Rob}, journal={Proceedings of the National Academy of Sciences}, volume={107}, number={14}, pages={6477--6481}, year={2010}, publisher={National Acad Sciences} }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){hardyck1977left, title={Left-handedness.}, author={Hardyck, Curtis and Petrinovich, Lewis F}, journal={Psychological bulletin}, volume={84}, number={3}, pages={385}, year={1977}, publisher={American Psychological Association} }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){findley2013topographic, title={Topographic diversity of fungal and bacterial communities in human skin}, author={Findley, Keisha and Oh, Julia and Yang, Joy and Conlan, Sean and Deming, Clayton and Meyer, Jennifer A and Schoenfeld, Deborah and Nomicos, Effie and Park, Morgan and Sequencing, NIH Intramural Sequencing Center Comparative and others}, journal={Nature}, volume={498}, number={7454}, pages={367}, year={2013}, publisher={Nature Publishing Group} }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){hilburn2003use, title={Use of alcohol hand sanitizer as an infection control strategy in an acute care facility}, author={Hilburn, Jessica and Hammond, Brian S and Fendler, Eleanor J and Groziak, Patricia A}, journal={American journal of infection control}, volume={31}, number={2}, pages={109--116}, year={2003}, publisher={Elsevier} }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){hammond2000effect, title={Effect of hand sanitizer use on elementary school absenteeism}, author={Hammond, Brian and Ali, Yusuf and Fendler, Eleanor and Dolan, Michael and Donovan, Sandra}, journal={American Journal of Infection Control}, volume={28}, number={5}, pages={340--346}, year={2000}, publisher={Elsevier} }
+
+(<span class="citeproc-not-found" data-reference-id="article">**???**</span>){costello2009bacterial, title={Bacterial community variation in human body habitats across space and time}, author={Costello, Elizabeth K and Lauber, Christian L and Hamady, Micah and Fierer, Noah and Gordon, Jeffrey I and Knight, Rob}, journal={Science}, volume={326}, number={5960}, pages={1694--1697}, year={2009}, publisher={American Association for the Advancement of Science} }
+
 Callahan,B.J. *et al.* (2016) DADA2: High-resolution sample inference from illumina amplicon data. *Nature Methods*, **13**, 581–583.
+
+Costello,E.K. *et al.* (2009) Bacterial community variation in human body habitats across space and time. *Science*, **326**, 1694–1697.
+
+Fierer,N. *et al.* (2010) Forensic identification using skin bacterial communities. *Proceedings of the National Academy of Sciences*, **107**, 6477–6481.
+
+Findley,K. *et al.* (2013) Topographic diversity of fungal and bacterial communities in human skin. *Nature*, **498**, 367.
+
+Hammond,B. *et al.* (2000) Effect of hand sanitizer use on elementary school absenteeism. *American Journal of Infection Control*, **28**, 340–346.
+
+Hardyck,C. and Petrinovich,L.F. (1977) Left-handedness. *Psychological bulletin*, **84**, 385.
+
+Hilburn,J. *et al.* (2003) Use of alcohol hand sanitizer as an infection control strategy in an acute care facility. *American journal of infection control*, **31**, 109–116.
 
 McMurdie,P.J. and Holmes,S. (2013) Phyloseq: An r package for reproducible interactive analysis and graphics of microbiome census data. *PLoS ONE*, **8**, e61217.

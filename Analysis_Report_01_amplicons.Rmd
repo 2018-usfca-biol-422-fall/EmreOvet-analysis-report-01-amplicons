@@ -1,7 +1,7 @@
 ---
-title: "Analysis Report 1: Your Title Here"
-author: "Don Francisco"
-date: "October 20, 2017"
+title: "Analysis Report 1: The Level of Similarities and Differences Between Skin Bacterial Communities On Left And Right Hands"
+author: "Emre Ovet"
+date: "October 31, 2018"
 output: github_document
 bibliography: references.bib
 csl: bioinformatics.csl
@@ -9,21 +9,30 @@ csl: bioinformatics.csl
 
 # Introduction
 
-Add about 1.5-2 pages here. Must cite at least 5 peer reviewed articles.
+The human body hosts millions of bacterial communities that are beneficial or harmful for their host, with varying abundances and phyla [@costello2009bacterial]. One particular organ of the human body, that is, the tissue, has been recently under the scope of the microbiologists due to the diversity and the abundance of bacterial communities on its surface [@findley2013topographic]. One of the research topics on the bacteria living on the skin surface investigates if it is possible to use skin bacterial communities for forensic investigations. This research was conducted by Fierer et al. and they hypothesized that it is possible. In order to test their hypothesis, they carried out three interrelated studies that combine phylogenetic community analysis with high-throughput pyrosequencing methods [@callahan2016; @fierer2010forensic]. They compared bacterial communities on keyboard keys with those found on the finger surfaces of their owners, examined the similarity of bacterial communities on different objects kept in different temperatures and they matched computer mice with individuals who used them by comparing the bacterial community found on the mice with a bacterial community database created by samples obtained from hundreds of people. After analysing their work, we came up with a new question, that is, are the bacterial communities in left and right hands similar to each other in terms of variety and abundance? We hypothesize that they are different from each other since right-handed people tend to make contact with objects using their right hand and left-handed people tend to use their left hand to make contact with objects in daily life. This will result in having a higher variety and abundance of bacteria in right hands of right-handed people compared to their left hand and a higher variety and abundance of bacterium in left hands of the left-handed people compared to their right hand. However, the population of left-handed people is only %10 of World's population [@hardyck1977left], therefore, the overall variety and abundance of bacteria in right hands should be higher than left hands when we consider the total human population in the World. We believe this is an important topic for research because if we can prove the bacterial communities in left and right hands are different from each other in terms of variety and abundance, this might have further implications on forensic investigation using skin bacterial communities. For instance, by analysing the variety and abundance of bacterial communities on the surface of objects in a crime scene, we can have an idea if the criminal is right or left handed and if the criminal turns out to be left-handed, that'll allow the police to eliminate most of the names on their list for possible suspects. It might also have implications on hygiene and sanitation sector. For example, hand sanitizer companies can develop two different sanitizer gel formulas that are specific to eliminate the pathogenic bacteria found only in left and right hands. This would have a great impact on public health, decrease elementary school absenteeisms caused by infections [@hammond2000effect] and also decrease the infection rates in acute care facilities [@hilburn2003use].
+
+ In order to test our hypothesis, we are gonna use the data from the keyboard experiment of Fierer et al. which can be found at the NCBI sequence read archive with the study number ERP022626. Our primary focus is going to be on the surface of little fingers, therefore, we'll be analyzing left and right shift keys to present the bacterial communities on left and right hands in a miniscale. Using the DADA2 package, we are gonna create an amplicon sequence variant table that records the number of times each exact amplicon sequence variant observed in each sample [@callahan2016]. Then, using the pyloseq package, we are gonna store all related phylogenetic sequencing data as single experiment-level object [@mcmurdie2013]. After that, we are gonna melt all the metadata together using R and make plots on the most abundant phyla in each key using ggplot to see how similar the keys and the fingertips are overall. Next, we are gonna make plots on the most abundant phyla,family and genera in left and right shift keys to see how similar they are in different levels of taxonomy. Finally, to make sure the information we obtained up until this point is not biased ,that is, both of the keys have bacteria from left and right-handed individuals, we are gonna make a final plot showing from which individuals the genera are obtained from in each key.
+
 
 # Methods
 
 ## Sample origin and sequencing
+We obtained our data from the keyboard analysis conducted by Fierer et al.[@fierer2010forensic] .For the keyboard analysis, keys from 3 personal computer keyboards which belong to 3 healthy individuals with ages varying from 20 to 35 years were swabbed along with the fingertips of their owners by Fierer et al.. 2 of these individuals share the same working space. The keyboards had not been touched for 30 minutes before swabbing and each keyboard swabbed by Fierer et al. between 10 minute intervals. Then, space bar keys from 15 personal or public computer keyboards located in University of Colorado Campus were swabbed. In order to sample skin surfaces and keyboards, pre- moistured and autoclaved cotton-tipped swabs were used. All the swabs were kept at -80 Celsius before DNA extraction. 
 
-Add about half a page here. In this section instead of first person (I/we), use Fierer et al., since you'll just be describing what they did, based on the methods in their paper.
+ The genomic DNA was extracted by Fierer et al. using MO BIO Powersoil DNA isolation kit [@fierer2010forensic]. Then, 16S rRNA genes were amplified and used in PCR. Furthermore, agarose gel electrophoresis was conducted to visualize the replicate amplicons. Amplicon DNA concentrations were analyzed using Quant-iTPicoGreen dsDNA reagent and kit. Then, a pellet was prepared using cleaned and quantified amplicons for pyrosequencing. Fierer et al. used 454 Life Sciences Genome Sequencer FLX instrument by the Environmental Genomics Core Facility at the University of South Carolina.
+ 
+ For sequence analyses, the criteria established for excluding low quality sequences is that all the sequences should be 200 and 300 base pairs in length, have a quality score higher than 25, don't contain ambigious characters, uncorrectable barcode and should contain primer sequence [@fierer2010forensic].
 
 ## Computational
 
-These are the methods you used. Should probably be at least a half of a page. At a very minimum should include citations for DADA2 [@callahan2016] and phyloseq [@mcmurdie2013]. Note that these don't count towards the five references you need to cite in the introduction.
+First of all, we started our computational analysis by loading genereal-use packages from
+bioconductor and GitHub. Then, we set the base path for our input data files from
+keyboard study, sorted the path to ensure samples are in order, extracted sample names and specified the full path for each of the filenames_forward_reads [@callahan2016; @mcmurdie2013]. Next, we plotted the quality profiles of each 20 samples. After checking those quality profiles,
+we created a diretory called "filtered_reads_path", placed our filtered files inside the filtered/ subdirectory in it and trimmed the lower quality sequences [@callahan2016; @mcmurdie2013]. Then, we produced a table of read counts before and after trimming. This was followed by building error models from each of the samples and visualizing errors with plots to make sure error models matched our data. After checking the plots, we removed all the replicated sequences to increase DADA2's accuracy [@callahan2016; @fierer2010forensic]. Next, we ran DADA2 to apply the core sample inference algorith to the dereplicated data [@callahan2016; @mcmurdie2013]. After DADA2 ran succesfully, we created a new sequence table with "samples" rows and "sequnce variants" columns. This was followed by an histogram of sequence lenghts to check the distribution of trimmed and denoised sequences. Then, we removed the chimeras from our cleaned reads to obtain just non-chimeric reads. After that, we builded a table of pipeline read counts to see how many sequences remain at each step of the pipeline. Next, we assigned taxonomy to each sequence variant. After assigning taxonomy, we extracted sequences to Fasta and builded a phylogeny using DADA2 [@callahan2016; @mcmurdie2013]. Finally, we read in the phylogeny and construct a Phyloseq object [@fierer2010forensic; @mcmurdie2013]. After completing all these steps, we melted all 3 metadata together, explored the dataset and made plots using ggplot.
 
 # Results
 
-In addition to a minimum of 3-4 figures/tables (and associated captions), you should include sufficient text in this section to describe what your findings were. Remember that in the results section you just describe what you found, but you don't interpret it - that happens in the discussion.
+After analyzing our data, we found out that the bacterial communities in left and right shift keys have similar phyla present on them with Actinobacteria being the most abundant phylum, but even though the ranking of the phyla in terms of abundance are same, the actual numbers of abundances in two keys are different from each other. For instance, left shift key has a higher abundance in Actinobacteria, Firmicutes, Fusobacteria and Bacteroidetes, whereas left shift has a higher abundance in Candidatus Saccharibacteria. Moreover, the families in Actinobacteria phylum that are found in left and right shift keys are also similar to each other, with *Propionibacteriaceae* being the most abundant family. Once again, the actual number of abundances in two keys are different from each other left shift key has a significant amount of unidentified families and has two additional families present, *Coriobacteriaceae* and *Micronosporaceae*, but they have very small abundances. Right shift key has also two additional families present on it, *Dermabacteraceae* and *Dietziaceae*, but just like the ones in left shift key, they have very small abundances. Furthermore, the genera in *Propionibacteriaceae* found in left and right shift keys are similar to each other, with *Propionibacterium* being the most abundant one. It's abundance is about two times higher in right shift and also both shift keys have a very small amount of *Microlunatus* genus. In addition, the *Propionibacterium* genus comes from the individuals with host subject identities M2 and M3 in both shift keys. In left shift key, however, the abundances of *Propionibacterium* came from M2 is higher in left shift than right shift and the abundances of *Propionibacterium* came from M3 is higher in right shift then left shift, which suggest that M2 is left-handed and M3 is right-handed. As a result of all these findings, it is possible to say that the similarity between the left and right shift keys is significantly high in terms of the phyla, families and genera found on them but the abundances of the most abundant phylum, family and genus in both shift keys are different from each other.
 
 ```{r load-libraries, message = FALSE}
 # Be sure to install these packages before running this script
@@ -53,7 +62,7 @@ library("seqinr")
 # To install this you have to install from GitHub
 # See more info here: https://github.com/leffj/mctoolsr
 # run this -- install.packages("devtools")
-# and then this -- devtools::install_github("leffj/mctoolsr")
+# and then this --
 library("mctoolsr")
 
 # And this to visualize our results
@@ -64,7 +73,7 @@ library("phyloseq")
 ```{r extract-sample-and-file-names}
 # NOTE: Much of the following follows the DADA2 tutorials available here:
 # https://benjjneb.github.io/dada2/tutorial.html
-# Accessed October 19, 2017
+# Accessed October 19, 2018
 
 # set the base path for our input data files
 path <- "data/raw_data"
@@ -81,7 +90,7 @@ filenames_forward_reads <- file.path(path, filenames_forward_reads)
 
 ```{r check-quality-plots}
 # Plots the quality profiles of all twenty samples
-plotQualityProfile(filenames_forward_reads[1:20])
+plotQualityProfile(filenames_forward_reads[1:115])
 ```
 
 We can see from the quality profiles that most reads tend to get pretty bad in quality after around 200 bases. 
@@ -267,33 +276,83 @@ phyloseq_obj <- phyloseq(otu_table(sequence_table_nochim,
                          phy_tree(tree_in)) # phylogeny from sequence variants
 ```
 
-```{r example-phyloseq-plot-1}
-# alpha diversity metrics
-plot_richness(phyloseq_obj,
-              x = "sample_type",
-              measures = c("Shannon", "Simpson"),
-              color = "Sex") +
-  xlab("Sample origin") +
-  geom_jitter(width = 0.2) +
-  theme_bw()
+```{r melt-phyloseq}
+melted_phyloseq <- psmelt(phyloseq_obj)
+melted_phyloseq$sample_source[
+  melted_phyloseq$sample_source == "Left_Shift"] <- "Left_shift"
 ```
-
-**Figure 1**: Alpha diversity measures of the two sample types, colored by gender.
-
-```{r example-phyloseq-plot-2}
-# phylogeny, yay!
-plot_tree(phyloseq_obj,
-          color = "Sex",
-          ladderize = TRUE) # this arranges the tree branches from short to long
+```{r exploring-datasets}
+names(melted_phyloseq)
 ```
+```{r The-most-abundant-phylum-in-each-key}
+melted_phyloseq %>%
+  ggplot(aes(x = sample_source,
+             y = Abundance,
+             fill = Phylum)) +
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+ggtitle("The Most Abundant Phylum in Each Key")
+```
+**Figure 1**
+In figure 1, we can see that in every single key and in fingertips, Actinobacteria is the most abundant phylum with a very high difference compared to the second most abundant phylum, Firmicutes. In "I" and "U" keys, this difference is much smaller. Moreover, there is a negligible amount of unidentified phyla in some of the key bacteria.
 
-**Figure 2**: Inferred phylogeny of sequences, with points on tips representing samples within which each particular taxa occurred. Tree represents phylogeny inferred using FastTree.
+```{r Abundance-of-phyla-on-2-left-shift-keys-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Phylum)) +
+  geom_col(position = position_dodge()) +
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of Phyla on 2 Left Shift Keys and Right Shift Key")
+```
+**Figure 2**
+In figure 2, we can see that left and right shift keys have similar phyla present on them, with Actinobacteria being the most abundant one in both of them. The only differences between the two would be that right shift has a higher amount of Actinobacteria, Firmicutes, Bacteroidetes and Fusobacteria, whereas left shift has a higher amount of Candidatus Saccharibacteria and also has a negligible amount of unidentified phylum. 
 
+```{r Abundance-of-family-in-actinobacteria-phylum-found-in-left-and-right-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
+  filter(Phylum %in% c("Actinobacteria")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Family)) +
+  geom_col(position = position_dodge()) +
+    theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of family in Actinobacteria phylum found
+          in left and right shift keys")
+```
+**Figure 3**
+In figure 3, we can see that left and right shift keys have similar families in Actinobacteria phylum present on them, with *Propionibacteriaceae* being the most abundant one in both of them. Even though the order of the family abundances are the same, every single family present in those two keys have different abundances, except that for *Solirubrobacteraceae*, which seems to be the same in both of them. Furthermore, left shift key has a significant amount of unidentified families and two additional families present, *Coriobacteriaceae* and *Micronosporaceae*, with very small abundances. Moreover, right shift key has also two additional families present, *Dermabacteraceae* and *Dietziaceae*, once again, with very small abundances. 
+
+```{r Abundance-of-genus-in-propionibacteriaceae-family-found-in-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
+  filter(Family %in% c("Propionibacteriaceae")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = Genus)) +
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Abundance of genus in Propionibacteriaceae family
+          found in left and right shift keys")
+```
+**Figure 4**
+In figure 4, we can see that left and right shift keys have similar genera in *Propionibacteriaceae* family present on them. The *propionibacterium* is the most abundant genus in both of them. The abundance of this genus is about two times higher in right shift. Moreover, there is a very small abundance of *Microlunatus* in both keys.
+
+```{r The-host-subject-identities-for-the-Propionibacterium-genus-found-in-shift-keys}
+melted_phyloseq %>%
+  filter(sample_source %in% c("Left_shift", "Left_Shift", "Right_shift")) %>%
+  filter(Genus %in% c("Propionibacterium")) %>%
+  ggplot(aes(x = sample_source, y = Abundance, fill = host_subject_id)) +
+  geom_col(position = position_dodge()) +
+  theme(axis.text = element_text(angle = 90, hjust = 1)) +
+  ggtitle("The Host Subject Identities For The Propionibacterium
+            Genus Found In Shift Keys")
+```
+**Figure 5**
+In figure 5, we can see that the *Propionebacterium* genus found in left and right shift keys comes from the individuals with host subject identities M2 and M3. In left shift, the abundances of *Propionebacterium* came from M2 and M3 is close to each other whereas in right shift, this difference in abundance is higher. Overall, about 1000 of the *Propionebacterium* comes from the host M3 and about 350 from host M2.
 
 # Discussion
 
-Add around 2-3 pages interpreting your results and considering future directions one might take in analyzing these data.
+Returning back to our central question: "Are the bacterial communities in left and right hands similar to each other in terms of variety and abundance?", we failed to find any major difference between the bacterial communities on two shift keys in terms of variety. The only variety differences was on the family level but since the abundances of the families that are unique to left or right shift keys are between 1 and 10 out of 800, they are not significant enough to consider. However, we were able to find one particular difference in terms of abundance between right and left shift keys, that is, abundance of the most abundant phylum, family and genus of right shift are always about two times higher than those of right shift. We also found out that our work was not biased since there are both left and right-handed individuals in this analysis.
+In light of all these results, we can say that the bacterial communities in left and right hands are similar to each other in terms of variety but they are different from each other in terms of abundance.
+
+ This result doesn't support much the implications we previously talked in the introduction section, because we need more difference in variety of bacteria in order to find out if someone is left or right handed in forensic investigations and also the hand sanitizer companies won't really consider to manifacture different gel sanitizers for each hand since the bacterial varieties are the same in two hands. Moreover, our most abundant genus, *Propionibacterium*, is not a dangerous pathogen but it still causes acne on the skin, so the hand sanitizer companies can still develop their gel formulas to specifically target this bacterium to decrease the spread of this skin disease.
+
+ It is not possible to say that our work completely concludes this question since we only focused on little finger surfaces, which is a small section of a hand. Therefore, there's still a lot of work that needs to be done on the rest of the fingers and on the palms as well to make a final conclusion. Another problem with our work is that we were able to analyze data on 2 individuals only, which is not large enough to make a conclusion involving the total population of Earth. We encourage the researchers to have a much greater sample of hands in the further experimentations on this topic.
 
 # Sources Cited
-
-
